@@ -17,6 +17,8 @@ object Nodes {
 
     def serializeSelf : Map[String,Any] 
     def reference : Reference  = Reference(typeId, key)
+    def dependencies : Seq[Node] = Seq.empty
+    def register : Set[Node] = Set(this) ++ dependencies.flatMap(_.register)
   }
 
   object Node {
@@ -38,6 +40,7 @@ object Nodes {
         "root" -> root.reference
     )
     def typeId = "Gad"
+    override def dependencies = Seq(bog, est, root)
   }
 
   case class Calced[T](val value: T) extends Src[T] {
@@ -56,6 +59,7 @@ object Nodes {
         "est" -> estSrc.reference
     )
     def typeId = "BogEst"
+    override def dependencies = Seq(bogSrc, estSrc, diff)
   }
 
   class DP(name: String) extends Src[Int] {
@@ -67,9 +71,8 @@ object Nodes {
   }
 
   val g = new Gad
-  val rows = Seq(g, g.bog, g.est, g.root)
+  val rows = g.register
   val tbls = rows.groupBy(_.typeId)
-  // val indices = tbls.mapValues(_.zipWithIndex).values.flatten.toMap
   
   val ser = tbls.mapValues(_.map(_.serialize))
   def main(args: Array[String]) = {
