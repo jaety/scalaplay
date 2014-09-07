@@ -16,19 +16,6 @@ object Nodes {
     def value: T
   }
 
-//  trait Src[T] extends Node {
-//    def src: Seq[Node] = Seq(this)
-//    def value: T
-//    def flatMap[B](f: T => Src[B]) : Src[B] = {
-//        val derived = f(this.value)
-//        val newSrc = src ++ derived.src
-//        new Src[B] {
-//            def src = newSrc
-//            def value = derived.value
-//        }
-//    }
-//  }
-
   class Gad extends Node {
     val bog = new DP("bog")
     val est = new DP("est")
@@ -54,7 +41,8 @@ object Nodes {
 
     def serialize(resolver: Node => Int) = Map(
         "id" -> resolver(this),
-        "bog" -> bog.reference(resolver)
+        "bog" -> bogSrc.reference(resolver),
+        "est" -> estSrc.reference(resolver)
     )
     def typeId = "BogEst"
   }
@@ -69,12 +57,12 @@ object Nodes {
   }
 
   val g = new Gad
-  val rows = Seq(g, g.bog, g.root)
+  val rows = Seq(g, g.bog, g.est, g.root)
   val tbls = rows.groupBy(_.typeId)
   val indices = tbls.mapValues(_.zipWithIndex).values.flatten.toMap
   
   val ser = tbls.mapValues(_.map(_.serialize(indices)))
   def main(args: Array[String]) = {
-    
+    println(ser)
   }
 }
