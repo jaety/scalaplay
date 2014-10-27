@@ -1,0 +1,6 @@
+class Refs {
+
+}
+object Refs {
+
+}
